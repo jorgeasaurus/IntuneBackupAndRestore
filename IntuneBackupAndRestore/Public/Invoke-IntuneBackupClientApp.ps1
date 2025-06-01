@@ -22,33 +22,38 @@ function Invoke-IntuneBackupClientApp {
         [ValidateSet("v1.0", "Beta")]
         [string]$ApiVersion = "Beta"
     )
-
-    # Set the Microsoft Graph API endpoint
-    if (-not ((Get-MSGraphEnvironment).SchemaVersion -eq $apiVersion)) {
-        Update-MSGraphEnvironment -SchemaVersion $apiVersion -Quiet
-        Connect-MSGraph -ForceNonInteractive -Quiet
-    }
-
-    # Create folder if not exists
-    if (-not (Test-Path "$Path\Client Apps")) {
-        $null = New-Item -Path "$Path\Client Apps" -ItemType Directory
+    
+    #Connect to MS-Graph if required
+    if ($null -eq (Get-MgContext)) {
+        Connect-MgGraph -Scopes "DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
     }
 
     # Get all Client Apps
-    $clientApps = Invoke-MSGraphRequest -Url 'deviceAppManagement/mobileApps?$filter=(microsoft.graph.managedApp/appAvailability%20eq%20null%20or%20microsoft.graph.managedApp/appAvailability%20eq%20%27lineOfBusiness%27%20or%20isAssigned%20eq%20true)' | Get-MSGraphAllPages
+    $filter = "microsoft.graph.managedApp/appAvailability eq null or microsoft.graph.managedApp/appAvailability eq 'lineOfBusiness' or isAssigned eq true"
+    $clientApps = Invoke-MgRestMethod -Uri "$apiversion/deviceAppManagement/mobileApps?filter=$filter" | Get-MgGraphAllPages
 
-    foreach ($clientApp in $clientApps) {
-        $clientAppType = $clientApp.'@odata.type'.split('.')[-1]
+    if ($clientApps.value -ne "") {
 
-        $fileName = ($clientApp.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
-        $clientAppDetails = Invoke-MSGraphRequest -HttpMethod GET -Url "deviceAppManagement/mobileApps/$($clientApp.id)"
-        $clientAppDetails | ConvertTo-Json | Out-File -LiteralPath "$path\Client Apps\$($clientAppType)_$($fileName).json"
+        # Create folder if not exists
+        if (-not (Test-Path "$Path\Client Apps")) {
+            $null = New-Item -Path "$Path\Client Apps" -ItemType Directory
+        }
+		
+        Write-Output "Backup - [Client Apps] - Count [$($clientApps.count)]"
 
-        [PSCustomObject]@{
-            "Action" = "Backup"
-            "Type"   = "Client App"
-            "Name"   = $clientApp.displayName
-            "Path"   = "Client Apps\$($clientAppType)_$($fileName).json"
+        foreach ($clientApp in $clientApps) {
+            $clientAppType = $clientApp.'@odata.type'.split('.')[-1]
+		
+            $fileName = ($clientApp.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+            $clientAppDetails =  $clientApp | ConvertTo-Json -Depth 3 | ConvertFrom-Json
+
+            # Remove the specified properties
+            $clientAppDetails.PSObject.Properties.Remove("lastModifiedDateTime")
+            $clientAppDetails.PSObject.Properties.Remove("usedLicenseCount")
+            $clientAppDetails.PSObject.Properties.Remove("createdDateTime")
+
+            $clientAppDetails | ConvertTo-Json -Depth 10 | Out-File -LiteralPath "$path\Client Apps\$($fileName).json" 
+
         }
     }
 }

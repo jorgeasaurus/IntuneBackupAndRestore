@@ -13,9 +13,9 @@ function Start-IntuneRestoreConfig() {
     Start-IntuneRestore -Path C:\temp
     
     .NOTES
-    Requires the MSGraphFunctions PowerShell Module
+    Requires the MSGraph SDK PowerShell Module
 
-    Connect to MSGraph first, using the 'Connect-Graph' cmdlet.
+    Connect to MSGraph first, using the 'Connect-MgGraph' cmdlet.
     #>
     
     [CmdletBinding()]
@@ -28,12 +28,34 @@ function Start-IntuneRestoreConfig() {
         "Action" = "Restore"
         "Type"   = "Intune Backup and Restore Action"
         "Name"   = "IntuneBackupAndRestore - Start Intune Restore Config"
-        "Path"   = $Path
+        #"Path"   = $Path
     }
 
+    #Connect to MS-Graph if required
+    if ($null -eq (Get-MgContext)) {
+        Connect-MgGraph -Scopes "EntitlementManagement.ReadWrite.All, DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
+    } else {
+        Write-Host "MS-Graph already connected, checking scopes"
+        $scopes = Get-MgContext | Select-Object -ExpandProperty Scopes
+        $IncorrectScopes = $false
+        if ($scopes -notcontains "DeviceManagementApps.ReadWrite.All") { $IncorrectScopes = $true }
+        if ($scopes -notcontains "DeviceManagementConfiguration.ReadWrite.All") { $IncorrectScopes = $true }
+        if ($scopes -notcontains "DeviceManagementServiceConfig.ReadWrite.All") { $IncorrectScopes = $true }
+        if ($scopes -notcontains "DeviceManagementManagedDevices.ReadWrite.All") { $IncorrectScopes = $true }
+        if ($IncorrectScopes) {
+            Write-Host "Incorrect scopes, please sign in again"
+            Connect-MgGraph -Scopes "DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All"
+        } else {
+            Write-Host "MS-Graph scopes are correct"     
+        }
+  
+    }
+
+    Invoke-IntuneRestoreAutopilotDeploymentProfile -Path $Path
     Invoke-IntuneRestoreConfigurationPolicy -Path $Path
     Invoke-IntuneRestoreDeviceCompliancePolicy -Path $Path
     Invoke-IntuneRestoreDeviceConfiguration -Path $Path
+    Invoke-IntuneRestoreDeviceHealthScript -Path $Path
     Invoke-IntuneRestoreDeviceManagementScript -Path $Path
     Invoke-IntuneRestoreGroupPolicyConfiguration -Path $Path
     Invoke-IntuneRestoreDeviceManagementIntent -Path $Path
