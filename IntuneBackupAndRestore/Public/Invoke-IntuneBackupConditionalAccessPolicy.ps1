@@ -29,10 +29,9 @@ function Invoke-IntuneBackupConditionalAccessPolicy {
     }
 
     # Get all Client Apps
-    $ConditionalAccessPolicies = Get-MgBetaIdentityConditionalAccessPolicy -All
+    $ConditionalAccessPolicies = Invoke-MgGraphRequest -Uri "$ApiVersion//identity/conditionalAccess/policies" | Get-MgGraphAllPages
 
     if ($ConditionalAccessPolicies.value -ne "") {
-
 
         Write-Output "Backup - [Conditional Access Policies] - Count [$($ConditionalAccessPolicies.count)]"
 
@@ -44,7 +43,7 @@ function Invoke-IntuneBackupConditionalAccessPolicy {
         foreach ($ConditionalAccessPolicy in $ConditionalAccessPolicies) {
 	
             $fileName = ($ConditionalAccessPolicy.id) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
-            $ConditionalAccessPolicy.ToJsonString() | Out-File -LiteralPath "$path\Conditional Access Policies\$fileName.json"
+            $ConditionalAccessPolicy | ConvertTo-Json -Depth 5 | Out-File -LiteralPath "$path\Conditional Access Policies\$fileName.json"
         }
     }
 }
