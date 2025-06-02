@@ -32,7 +32,6 @@ function Start-IntuneBackup() {
         $scopes = Get-MgContext | Select-Object -ExpandProperty Scopes
         $IncorrectScopes = $false
         if ($scopes -notcontains "DeviceManagementApps.ReadWrite.All") { $IncorrectScopes = $true }
-        if ($scopes -notcontains "EntitlementManagement.ReadWrite.All") { $IncorrectScopes = $true }
         if ($scopes -notcontains "Policy.Read.All") { $IncorrectScopes = $true }
         if ($scopes -notcontains "DeviceManagementConfiguration.ReadWrite.All") { $IncorrectScopes = $true }
         if ($scopes -notcontains "DeviceManagementServiceConfig.ReadWrite.All") { $IncorrectScopes = $true }
