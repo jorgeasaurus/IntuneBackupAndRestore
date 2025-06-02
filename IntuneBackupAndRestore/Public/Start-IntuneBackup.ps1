@@ -37,8 +37,8 @@ function Start-IntuneBackup() {
         if ($scopes -notcontains "DeviceManagementServiceConfig.ReadWrite.All") { $IncorrectScopes = $true }
         if ($scopes -notcontains "DeviceManagementManagedDevices.ReadWrite.All") { $IncorrectScopes = $true }
         if ($IncorrectScopes) {
-            Write-Host "Incorrect scopes, please sign in again"
-            Connect-MgGraph -Scopes "DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All"
+            Write-Host "Incorrect scopes, please verify you have the correct permissions to backup Intune configuration."
+            Exit 1
         } else {
             Write-Host "MG-Graph scopes are correct"
         }
