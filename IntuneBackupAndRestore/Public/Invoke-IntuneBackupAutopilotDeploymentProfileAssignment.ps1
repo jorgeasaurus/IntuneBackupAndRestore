@@ -28,11 +28,7 @@
 
 	if ($winAutopilotDeploymentProfiles.value -ne "") {
 
-        [PSCustomObject]@{
-            #"Action" = "Backup"
-            "Type"   = "Autopilot Deployment Profile Assignments"
-            #"Path"   = "Autopilot Deployment Profiles\Assignments\$fileName.json"
-        }
+        Write-Output "Backup - [Autopilot Deployment Profile Assignments]"
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Autopilot Deployment Profiles\Assignments")) {

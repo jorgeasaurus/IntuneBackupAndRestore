@@ -33,10 +33,7 @@
 
     if ($winAutopilotDeploymentProfiles.value -ne "") {
 
-        [PSCustomObject]@{
-            #"Action" = "Backup"
-            "Type"   = "Autopilot Deployment Profile"
-        }
+        Write-Output "Backup - [Autopilot Deployment Profile] - Count [$($winAutopilotDeploymentProfiles.count)]"
 
         # Create folder if not exists
         if (-not (Test-Path "$Path\Autopilot Deployment Profiles")) {

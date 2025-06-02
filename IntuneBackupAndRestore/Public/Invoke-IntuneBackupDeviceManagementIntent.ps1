@@ -33,11 +33,7 @@ function Invoke-IntuneBackupDeviceManagementIntent {
 
 	if ($intents.value -ne "") {
 
-		[PSCustomObject]@{
-			#"Action" = "Backup"
-			"Type"   = "Device Management Intent"
-			#"Path"   = "Device Management Intents\$templateDisplayName\$fileName.json"
-		}
+		Write-Output "Backup - [Device Management Intents] - Count [$($intents.count)]"
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Device Management Intents")) {

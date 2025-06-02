@@ -24,11 +24,6 @@ function Start-IntuneBackup() {
         [string]$Path
     )
 
-    [PSCustomObject]@{
-        #"Action" = "Backup"
-        "Type"   = "Start"
-    }
-
     #Connect to MS-Graph if required
     if ($null -eq (Get-MgContext)) {
         Connect-MgGraph -Scopes "EntitlementManagement.ReadWrite.All, DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 

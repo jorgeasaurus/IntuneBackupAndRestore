@@ -33,11 +33,7 @@ function Invoke-IntuneBackupDeviceManagementScript {
 	
 	if ($deviceManagementScripts.value -ne "") {
 		
-        [PSCustomObject]@{
-            #"Action" = "Backup"
-            "Type"   = "Device Management Scripts"
-            #"Path"   = "Device Management Scripts\$deviceManagementScriptFileName.json"
-        }
+        Write-Output "Backup - [Device Management Scripts] - Count [$($deviceManagementScripts.count)]"
 
 	    # Create folder if not exists
 		if (-not (Test-Path "$Path\Device Management Scripts\Script Content")) {

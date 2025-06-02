@@ -32,11 +32,7 @@
 
 	if ($healthScripts.value -ne "") {
 
-		[PSCustomObject]@{
-			#"Action" = "Backup"
-			"Type"   = "Device Health Scripts"
-			#"Path"   = "Device Health Scripts\$fileName.json"
-		}
+		Write-Output "Backup - [Device Health Scripts] - Count [$($healthScripts.count)]"
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Device Health Scripts")) {

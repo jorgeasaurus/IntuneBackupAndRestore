@@ -33,11 +33,7 @@ function Invoke-IntuneBackupGroupPolicyConfiguration {
 
 	if ($groupPolicyConfigurations.value -ne "") {
 
-		[PSCustomObject]@{
-			#"Action" = "Backup"
-			"Type"   = "Administrative Templates"
-			#"Path"   = "Administrative Templates\$fileName.json"
-		}
+		Write-Output "Backup - [Administrative Templates] - Count [$($groupPolicyConfigurations.count)]"
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Administrative Templates")) {
