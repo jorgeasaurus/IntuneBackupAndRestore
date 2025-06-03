@@ -29,7 +29,7 @@ function Invoke-IntuneBackupDeviceConfigurationAssignment {
     }
 
     # Get all assignments from all policies
-    $deviceConfigurations = Invoke-MgGraphRequest -Uri "$apiVersion/deviceManagement/deviceConfigurations" | Get-MGGraphAllPages
+    $deviceConfigurations = Invoke-MgGraphRequest -Uri "$apiVersion/deviceManagement/deviceConfigurations" | Get-MgGraphAllPages
 
     if ($deviceConfigurations.value -ne "") {
 
@@ -40,20 +40,14 @@ function Invoke-IntuneBackupDeviceConfigurationAssignment {
             $null = New-Item -Path "$Path\Device Configurations\Assignments" -ItemType Directory
         }
 	
-        $Output = foreach ($deviceConfiguration in $deviceConfigurations) {
-            $assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceConfigurations/$($deviceConfiguration.id)/assignments" | Get-MGGraphAllPages
+        foreach ($deviceConfiguration in $deviceConfigurations) {
+            $assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceConfigurations/$($deviceConfiguration.id)/assignments" | Get-MgGraphAllPages
 	
             if ($assignments) {
                 $fileName = ($deviceConfiguration.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
                 $assignments | ConvertTo-Json | Out-File -LiteralPath "$path\Device Configurations\Assignments\$fileName.json"
             }
-            [PSCustomObject]@{
-                deviceConfiguration = $deviceConfiguration | Select-Object id,displayName,"@odata.type",createdDateTime,lastModifiedDateTime
-                Assignments         = @($assignments)
-            }
+          
         }
-        $jsonfilename = "deviceConfiguration.json"
-        $outputPathFile = Join-Path  $path $jsonfilename
-        $Output | ConvertTo-Json -Depth 100 | Out-File -FilePath $outputPathFile -Encoding UTF8
     }
 }

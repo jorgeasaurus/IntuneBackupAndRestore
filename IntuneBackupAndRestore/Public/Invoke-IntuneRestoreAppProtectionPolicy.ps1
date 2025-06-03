@@ -24,14 +24,14 @@ function Invoke-IntuneRestoreAppProtectionPolicy {
 
     #Connect to MS-Graph if required
     if ($null -eq (Get-MgContext)) {
-        connect-mggraph -scopes "DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
+        Connect-MgGraph -Scopes "DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
     }
 
     # Get all App Protection Policies
     $appProtectionPolicies = Get-ChildItem -Path "$path\App Protection Policies" -File -ErrorAction SilentlyContinue
     
     foreach ($appProtectionPolicy in $appProtectionPolicies) {
-        $appProtectionPolicyContent = Get-Content -LiteralPath $appProtectionPolicy.FullName | convertfrom-json
+        $appProtectionPolicyContent = Get-Content -LiteralPath $appProtectionPolicy.FullName | ConvertFrom-Json
         $appProtectionPolicyDisplayName = $appProtectionPolicyContent.displayName
 
         # Remove properties that are not available for creating a new configuration
@@ -41,7 +41,7 @@ function Invoke-IntuneRestoreAppProtectionPolicy {
             $requestBodyObject.supportsScopeTags = $false
         }
 
-        $requestBodyObject.PSObject.Properties | Foreach-Object {
+        $requestBodyObject.PSObject.Properties | ForEach-Object {
             if ($null -ne $_.Value) {
                 if ($_.Value.GetType().Name -eq "DateTime") {
                     $_.Value = (Get-Date -Date $_.Value -Format s) + "Z"
@@ -53,7 +53,14 @@ function Invoke-IntuneRestoreAppProtectionPolicy {
 
         # Restore the App Protection Policy
         try {
-            $null = Invoke-MgGraphRequest -Method POST -Body $requestBody.toString() -Uri "$ApiVersion/deviceAppManagement/managedAppPolicies" -ErrorAction Stop
+            #Check if the policy is for iOS or Android and create the policy accordingly
+            if ($requestBodyObject.'@odata.type' -eq "#microsoft.graph.iosManagedAppProtection") {
+                $CreateResult = New-MgDeviceAppMgtiOSManagedAppProtection -BodyParameter $requestBody -ErrorAction Stop
+            } elseif ($requestBodyObject.'@odata.type' -eq "#microsoft.graph.androidManagedAppProtection") {
+                $CreateResult = New-MgBetaDeviceAppMgtAndroidManagedAppProtection -BodyParameter $requestBody -ErrorAction Stop
+            }
+              
+            Write-Host "Policy created with id" $CreateResult.id -ForegroundColor Green
 
             [PSCustomObject]@{
                 "Action" = "Restore"
@@ -61,8 +68,7 @@ function Invoke-IntuneRestoreAppProtectionPolicy {
                 "Name"   = $appProtectionPolicyDisplayName
                 #"Path"   = "App Protection Policies\$($appProtectionPolicy.Name)"
             }
-        }
-        catch {
+        } catch {
             Write-Verbose "$appProtectionPolicyDisplayName - Failed to restore App Protection Policy" -Verbose
             Write-Error $_ -ErrorAction Continue
         }

@@ -29,7 +29,7 @@ function Invoke-IntuneBackupDeviceCompliancePolicyAssignment {
     }
 
     # Get all Device Compliance Policies
-    $deviceCompliancePolicies = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies" | Get-MGGraphAllPages
+    $deviceCompliancePolicies = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies" | Get-MgGraphAllPages
 
     if ($deviceCompliancePolicies.value -ne "") {
 
@@ -40,20 +40,13 @@ function Invoke-IntuneBackupDeviceCompliancePolicyAssignment {
             $null = New-Item -Path "$Path\Device Compliance Policies\Assignments" -ItemType Directory
         }
 	
-        $Output = foreach ($deviceCompliancePolicy in $deviceCompliancePolicies) {
-            $assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies/$($deviceCompliancePolicy.id)/assignments" | Get-MGGraphAllPages
+        foreach ($deviceCompliancePolicy in $deviceCompliancePolicies) {
+            $assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies/$($deviceCompliancePolicy.id)/assignments" | Get-MgGraphAllPages
             if ($assignments) {
                 $fileName = ($deviceCompliancePolicy.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
                 $assignments | ConvertTo-Json | Out-File -LiteralPath "$path\Device Compliance Policies\Assignments\$fileName.json"
-                [PSCustomObject]@{
-                    deviceCompliancePolicy = $deviceCompliancePolicy | Select-Object id,displayName,"@odata.type",createdDateTime,lastModifiedDateTime
-                    Assignments            = @($assignments)
-                }
 
             }
         }
-        $jsonfilename = "deviceCompliancePolicies.json"
-        $outputPathFile = Join-Path  $path $jsonfilename
-        $Output | ConvertTo-Json -Depth 100 | Out-File -FilePath $outputPathFile -Encoding UTF8
     }
 }

@@ -40,7 +40,7 @@ function Invoke-IntuneBackupAppProtectionPolicyAssignment {
 			$null = New-Item -Path "$Path\App Protection Policies\Assignments" -ItemType Directory
 		}
 	
-		$Output = foreach ($appProtectionPolicy in $appProtectionPolicies) {
+		foreach ($appProtectionPolicy in $appProtectionPolicies) {
 			switch ($appProtectionPolicy.'@odata.type') {
 				"#microsoft.graph.androidManagedAppProtection" {
 					$dataType = "androidManagedAppProtections"
@@ -70,14 +70,6 @@ function Invoke-IntuneBackupAppProtectionPolicyAssignment {
 	
 			$fileName = ($appProtectionPolicy.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
 			$assignments | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\App Protection Policies\Assignments\$fileName.json"
-			[PSCustomObject]@{
-				appProtectionPolicy = $appProtectionPolicy | Select-Object displayName, lastModifiedDateTime, id, isAssigned, "@odata.type", createdDateTime
-				Assignments         = @($assignments)
-			}
-
 		}
-		$jsonfilename = "appProtectionPolicies.json"
-		$outputPathFile = Join-Path  $path $jsonfilename
-		$Output | ConvertTo-Json -Depth 100 | Out-File -FilePath $outputPathFile -Encoding UTF8
 	}
 }

@@ -40,20 +40,14 @@ function Invoke-IntuneBackupConfigurationPolicyAssignment {
             $null = New-Item -Path "$Path\Settings Catalog\Assignments" -ItemType Directory
         }
 	
-        $Output = foreach ($configurationPolicy in $configurationPolicies) {
+        foreach ($configurationPolicy in $configurationPolicies) {
             $assignments = (Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies/$($configurationPolicy.id)/assignments").value
             if ($assignments) {
                 $fileName = ($configurationPolicy.name) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
                 $assignments | ConvertTo-Json | Out-File -LiteralPath "$path\Settings Catalog\Assignments\$fileName.json"
 	
             }
-            [PSCustomObject]@{
-                configurationPolicy = $configurationPolicy | Select-Object name,createdDateTime,lastModifiedDateTime,platforms,id
-                Assignments         = @($assignments)
-            }
+         
         }
-        $jsonfilename = "configurationPolicies.json"
-        $outputPathFile = Join-Path  $path $jsonfilename
-        $Output | ConvertTo-Json -Depth 100 | Out-File -FilePath $outputPathFile -Encoding UTF8
-    }
+   }
 }

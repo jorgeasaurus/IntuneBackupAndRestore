@@ -41,20 +41,13 @@ function Invoke-IntuneBackupClientAppAssignment {
             $null = New-Item -Path "$Path\Client Apps\Assignments" -ItemType Directory
         }
 	
-        $Output = foreach ($clientApp in $clientApps) {
+        foreach ($clientApp in $clientApps) {
             $assignments = (Invoke-MgRestMethod -Uri "/$apiversion/deviceAppManagement/mobileApps/$($clientApp.id)/assignments").value
             if ($assignments) {
                 $fileName = ($clientApp.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
                 $assignments | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\Client Apps\Assignments\$fileName.json"
             }
-            [PSCustomObject]@{
-                ClientApp   = $clientapp | Select-Object displayName,lastModifiedDateTime,isAssigned,notes,id,publisher,releaseDateTime,"@odata.type",applicableDeviceType,createdDateTime,totalLicenseCount,usedLicenseCount
-                Assignments = @($assignments)
-            }
            
         }
-        $jsonfilename = "ClientApps.json"
-        $outputPathFile = Join-Path  $path $jsonfilename
-        $Output | ConvertTo-Json -Depth 100 | Out-File -FilePath $outputPathFile -Encoding UTF8
     }
 }
