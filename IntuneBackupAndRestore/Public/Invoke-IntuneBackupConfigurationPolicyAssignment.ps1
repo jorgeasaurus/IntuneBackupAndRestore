@@ -24,30 +24,33 @@ function Invoke-IntuneBackupConfigurationPolicyAssignment {
     )
 
     #Connect to MS-Graph if required
-    if ($null -eq (Get-MgContext)) {
-        Connect-MgGraph -Scopes "DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
+    if($null -eq (Get-MgContext)){
+        connect-mggraph -scopes "DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
     }
 
     # Get all assignments from all policies
     $configurationPolicies = (Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies").value
 
-    if ($configurationPolicies.value -ne "") {
+	if ($configurationPolicies) {
 
-        Write-Output "Backup - [Settings Catalog Assignments]"
-
-        # Create folder if not exists
-        if (-not (Test-Path "$Path\Settings Catalog\Assignments")) {
-            $null = New-Item -Path "$Path\Settings Catalog\Assignments" -ItemType Directory
-        }
+		# Create folder if not exists
+		if (-not (Test-Path "$Path\Settings Catalog\Assignments")) {
+			$null = New-Item -Path "$Path\Settings Catalog\Assignments" -ItemType Directory
+		}
 	
-        foreach ($configurationPolicy in $configurationPolicies) {
-            $assignments = (Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies/$($configurationPolicy.id)/assignments").value
-            if ($assignments) {
-                $fileName = ($configurationPolicy.name) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
-                $assignments | ConvertTo-Json | Out-File -LiteralPath "$path\Settings Catalog\Assignments\$fileName.json"
+		foreach ($configurationPolicy in $configurationPolicies) {
+			$assignments = (Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies/$($configurationPolicy.id)/assignments").value
+			if ($assignments) {
+				$fileName = ($configurationPolicy.name).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
+				$assignments | ConvertTo-Json | Out-File -LiteralPath "$path\Settings Catalog\Assignments\$fileName.json"
 	
-            }
-         
-        }
-   }
+				[PSCustomObject]@{
+					"Action" = "Backup"
+					"Type"   = "Settings Catalog Assignments"
+					"Name"   = $configurationPolicy.name
+					"Path"   = "Settings Catalog\Assignments\$fileName.json"
+				}
+			}
+		}
+	}
 }

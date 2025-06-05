@@ -31,9 +31,7 @@ function Invoke-IntuneBackupDeviceManagementScriptAssignment {
     # Get all assignments from all policies
     $deviceManagementScripts = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceManagementScripts" | Get-MgGraphAllPages
 
-	if ($deviceManagementScripts.value -ne "") {
-
-        Write-Output "Backup - [Device Management Script Assignments] - Count [$($deviceManagementScripts.count)]"
+	if ($deviceManagementScripts) {
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Device Management Scripts\Assignments")) {
@@ -44,10 +42,15 @@ function Invoke-IntuneBackupDeviceManagementScriptAssignment {
 			$assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceManagementScripts/$($deviceManagementScript.id)/assignments" | Get-MgGraphAllPages
 	
 			if ($assignments) {
-				$fileName = ($deviceManagementScript.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+				$fileName = ($deviceManagementScript.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 				$assignments | ConvertTo-Json | Out-File -LiteralPath "$path\Device Management Scripts\Assignments\$fileName.json"
 	
-
+				[PSCustomObject]@{
+					"Action" = "Backup"
+					"Type"   = "Device Management Script Assignments"
+					"Name"   = $deviceManagementScript.displayName
+					"Path"   = "Device Management Scripts\Assignments\$fileName.json"
+				}
 			}
 		}
 	}

@@ -31,11 +31,7 @@ function Invoke-IntuneBackupDeviceConfiguration {
     # Get all device configurations
     $deviceConfigurations = Invoke-MgGraphRequest -Uri "$apiVersion/deviceManagement/deviceConfigurations" | Get-MGGraphAllPages
 
-	if ($deviceConfigurations.value -ne "") {
-	
-	
-		Write-Output "Backup - [Device Configuration] - Count [$($deviceConfigurations.count)]"
-
+	if ($deviceConfigurations) {
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Device Configurations")) {
@@ -43,7 +39,7 @@ function Invoke-IntuneBackupDeviceConfiguration {
 		}
 	
 		foreach ($deviceConfiguration in $deviceConfigurations) {
-			$fileName = ($deviceConfiguration.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+			$fileName = ($deviceConfiguration.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 	
 			# If it's a custom configuration, check if the device configuration contains encrypted OMA settings, then decrypt the OmaSettings to a Plain Text Value (required for import)
 			if (($deviceConfiguration.'@odata.type' -eq '#microsoft.graph.windows10CustomConfiguration') -and ($deviceConfiguration.omaSettings | Where-Object { $_.isEncrypted -contains $true } )) {
@@ -79,7 +75,13 @@ function Invoke-IntuneBackupDeviceConfiguration {
 	
 			# Export the Device Configuration Profile
 			$deviceConfiguration | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\Device Configurations\$fileName.json"
-
+	
+			[PSCustomObject]@{
+				"Action" = "Backup"
+				"Type"   = "Device Configuration"
+				"Name"   = $deviceConfiguration.displayName
+				"Path"   = "Device Configurations\$fileName.json"
+			}
 		}
 	}
 }

@@ -60,7 +60,7 @@ function Invoke-IntuneRestoreDeviceConfiguration {
                 "Action" = "Restore"
                 "Type"   = "Device Configuration"
                 "Name"   = $deviceConfigurationDisplayName
-                #"Path"   = "Device Configurations\$($deviceConfiguration.Name)"
+                "Path"   = "Device Configurations\$($deviceConfiguration.Name)"
             }
         }
         catch {

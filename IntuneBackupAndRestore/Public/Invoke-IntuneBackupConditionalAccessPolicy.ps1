@@ -29,11 +29,9 @@ function Invoke-IntuneBackupConditionalAccessPolicy {
     }
 
     # Get all Client Apps
-    $ConditionalAccessPolicies = Invoke-MgGraphRequest -Uri "$ApiVersion//identity/conditionalAccess/policies" | Get-MgGraphAllPages
+    $ConditionalAccessPolicies = Invoke-MgGraphRequest -Uri "$ApiVersion/identity/conditionalAccess/policies" | Get-MgGraphAllPages
 
-    if ($ConditionalAccessPolicies.value -ne "") {
-
-        Write-Output "Backup - [Conditional Access Policies] - Count [$($ConditionalAccessPolicies.count)]"
+    if ($ConditionalAccessPolicies) {
 
         # Create folder if not exists
         if (-not (Test-Path "$Path\Conditional Access Policies")) {
@@ -42,6 +40,13 @@ function Invoke-IntuneBackupConditionalAccessPolicy {
 		
         foreach ($ConditionalAccessPolicy in $ConditionalAccessPolicies) {
 	
+            [PSCustomObject]@{
+                "Action" = "Backup"
+                "Type"   = "Conditional Access Policies"
+                "Name"   = $ConditionalAccessPolicy.displayName
+                "Path"   = "Conditional Access Policies\$fileName.json"
+            }
+
             $fileName = ($ConditionalAccessPolicy.id) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
             $ConditionalAccessPolicy | ConvertTo-Json -Depth 5 | Out-File -LiteralPath "$path\Conditional Access Policies\$fileName.json"
         }

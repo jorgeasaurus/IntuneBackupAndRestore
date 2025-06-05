@@ -85,7 +85,7 @@ function Invoke-IntuneRestoreDeviceConfigurationAssignment {
                 "Action" = "Restore"
                 "Type"   = "Device Configuration Assignments"
                 "Name"   = $deviceConfigurationObject.displayName
-                #"Path"   = "Device Configurations\Assignments\$($deviceConfiguration.Name)"
+                "Path"   = "Device Configurations\Assignments\$($deviceConfiguration.Name)"
             }
         }
         catch {

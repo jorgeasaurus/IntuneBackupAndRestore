@@ -31,10 +31,7 @@ function Invoke-IntuneBackupDeviceCompliancePolicy {
     # Get all Device Compliance Policies
     $deviceCompliancePolicies = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies" | Get-MGGraphAllPages
 
-	if ($deviceCompliancePolicies.value -ne "") {
-
-
-         Write-Output "Backup - [Device Compliance Policies] - Count [$($deviceCompliancePolicies.count)]"
+	if ($deviceCompliancePolicies) {
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Device Compliance Policies")) {
@@ -42,9 +39,15 @@ function Invoke-IntuneBackupDeviceCompliancePolicy {
 		}
 		
 		foreach ($deviceCompliancePolicy in $deviceCompliancePolicies) {
-			$fileName = ($deviceCompliancePolicy.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+			$fileName = ($deviceCompliancePolicy.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 			$deviceCompliancePolicy | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\Device Compliance Policies\$fileName.json"
-
+	
+			[PSCustomObject]@{
+				"Action" = "Backup"
+				"Type"   = "Device Compliance Policy"
+				"Name"   = $deviceCompliancePolicy.displayName
+				"Path"   = "Device Compliance Policies\$fileName.json"
+			}
 		}
 	}
 }

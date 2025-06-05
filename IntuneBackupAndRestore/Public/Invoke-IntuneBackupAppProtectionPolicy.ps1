@@ -31,10 +31,7 @@ function Invoke-IntuneBackupAppProtectionPolicy {
     # Get all App Protection Policies
     $appProtectionPolicies = Invoke-MgGraphRequest -Uri "/$ApiVersion/deviceAppManagement/managedAppPolicies" | Get-MgGraphAllPages
 
-	if ($appProtectionPolicies.value -ne "") {
-        
-        Write-Output "Backup - [App Protection Policy] - Count [$($appProtectionPolicies.count)]"
-
+	if ($appProtectionPolicies) {
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\App Protection Policies")) {
@@ -53,10 +50,15 @@ function Invoke-IntuneBackupAppProtectionPolicy {
 				$appProtectionPolicy.add("apps",(Invoke-MgGraphRequest -method get -Uri $uri).apps) 
 			}
 	
-			$fileName = ($appProtectionPolicy.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+			$fileName = ($appProtectionPolicy.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 			$appProtectionPolicy | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\App Protection Policies\$fileName.json"
 	
-
+			[PSCustomObject]@{
+				"Action" = "Backup"
+				"Type"   = "App Protection Policy"
+				"Name"   = $appProtectionPolicy.displayName
+				"Path"   = "App Protection Policies\$fileName.json"
+			}
 		}
 	}
 }

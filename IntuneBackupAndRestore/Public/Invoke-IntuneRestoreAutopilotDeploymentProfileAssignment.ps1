@@ -34,59 +34,62 @@ function Invoke-IntuneRestoreAutopilotDeploymentProfileAssignment {
 
     # Get all profiles with assignments
     $winAutopilotDeploymentProfiles = Get-ChildItem -Path "$Path\Autopilot Deployment Profiles\Assignments" -File -ErrorAction SilentlyContinue
+	
+    foreach ($winAutopilotDeploymentProfile in $winAutopilotDeploymentProfiles) {
+        $winAutopilotDeploymentProfileAssignments = Get-Content -LiteralPath $winAutopilotDeploymentProfile.FullName | ConvertFrom-Json
+        $winAutopilotDeploymentProfileId = ($winAutopilotDeploymentProfileAssignments[0]).id.Split(":")[0]
 
+        # Create the base requestBody
+        $requestBody = @{
+            winAutopilotDeploymentProfileAssignments = @()
+        }
+        
+        # Add assignments to restore to the request body
+        foreach ($winAutopilotDeploymentProfileAssignment in $winAutopilotDeploymentProfileAssignments) {
+            $requestBody.winAutopilotDeploymentProfileAssignments += @{
+                "target" = $winAutopilotDeploymentProfileAssignment.target
+				"source" = $winAutopilotDeploymentProfileAssignment.source
+				"sourceId" = $winAutopilotDeploymentProfileAssignment.sourceId
+            }
+        }
 
-    foreach ($profileFile in $winAutopilotDeploymentProfiles) {
-        $assignments = Get-Content -LiteralPath $profileFile.FullName | ConvertFrom-Json
-        # Extract the Autopilot profile ID (before the first “:”)
-        $profileId = ($assignments[0]).id.Split("_")[0]
+        # Convert the PowerShell object to JSON
+        $requestBody = $requestBody | ConvertTo-Json -Depth 100
 
-        # Retrieve the Autopilot Deployment Profile object (by ID or by name)
+        # Get the Autopilot Deployment Profile we are restoring the assignments for
         try {
             if ($restoreById) {
-                $profileObject = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/windowsAutopilotDeploymentProfiles/$profileId"
-            } else {
-                $allProfiles = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/windowsAutopilotDeploymentProfiles" | Get-MgGraphAllPages
-                $profileObject = $allProfiles | Where-Object displayName -EQ $profileFile.BaseName
-                if (-not $profileObject) {
-                    Write-Verbose "Profile '$($profileFile.BaseName)' not found in Intune; skipping assignment restore." -Verbose
+                $winAutopilotDeploymentProfileObject = Invoke-MgGraphRequest -Uri "deviceManagement/windowsAutopilotDeploymentProfiles/$winAutopilotDeploymentProfileId"
+            }
+            else {
+                $winAutopilotDeploymentProfileObject = Invoke-MgGraphRequest -Uri "deviceManagement/windowsAutopilotDeploymentProfiles" | Get-MGGraphAllPages | Where-Object displayName -eq "$($winAutopilotDeploymentProfile.BaseName)"
+                if (-not ($winAutopilotDeploymentProfileObject)) {
+                    Write-Verbose "Error retrieving Intune Autopilot Deployment Profile for $($winAutopilotDeploymentProfile.FullName). Skipping assignment restore" -Verbose
                     continue
                 }
             }
-        } catch {
-            Write-Verbose "Error retrieving Autopilot profile for '$($profileFile.Name)'; skipping." -Verbose
+        }
+        catch {
+            Write-Verbose "Error retrieving Intune Autopilot Deployment Profile for $($winAutopilotDeploymentProfile.FullName). Skipping assignment restore" -Verbose
+            Write-Error $_ -ErrorAction Continue
             continue
         }
 
-        $assignUrlBase = "$ApiVersion/deviceManagement/windowsAutopilotDeploymentProfiles/$($profileObject.id)/assignments"
-
-        foreach ($entry in $assignments) {
-            $targetObject = $entry.target
-
-            # Build a JSON payload for exactly one assignment
-            $singlePayload = @{
-                "target" = $targetObject
-            } | ConvertTo-Json -Depth 10
-
-            try {
-                $null = Invoke-MgGraphRequest `
-                    -Method POST `
-                    -Uri $assignUrlBase `
-                    -Body $singlePayload `
-                    -ContentType "application/json" `
-                    -ErrorAction Stop
-
-                [PSCustomObject]@{
-                    Action = "Restore"
-                    Type   = "Autopilot Deployment Profile Assignment"
-                    Name   = $profileObject.displayName
-                    Group  = if ($targetObject.groupId) { $targetObject.groupId } else { "All Devices" }
-                }
-            } catch {
-                Write-Verbose "Failed to restore assignment for group $($targetObject.groupId) under profile '$($profileObject.displayName)'." -Verbose
-                Write-Error $_
-                continue
+        # Restore the assignments
+        try {
+			# FIXME: look into why POSTing to this Graph API endpoint currently results in error "403 Forbidden - FeatureNotEnabled",
+            # although the user account has the required permissions as documented in https://docs.microsoft.com/en-us/graph/api/intune-shared-windowsautopilotdeploymentprofile-assign?view=graph-rest-beta
+            $null = Invoke-MgGraphRequest -Method POST -Content $requestBody.toString() -Uri "deviceManagement/windowsAutopilotDeploymentProfiles/$($winAutopilotDeploymentProfileObject.id)/assign" -ErrorAction Stop
+            [PSCustomObject]@{
+                "Action" = "Restore"
+                "Type"   = "Autopilot Deployment Profile Assignments"
+                "Name"   = $winAutopilotDeploymentProfileObject.displayName
+                "Path"   = "Autopilot Deployment Profiles\Assignments\$($winAutopilotDeploymentProfile.Name)"
             }
+        }
+        catch {
+            Write-Verbose "$($winAutopilotDeploymentObject.displayName) - Failed to restore Autopilot Deployment Profile Assignment(s)" -Verbose
+            Write-Error $_ -ErrorAction Continue
         }
     }
 }

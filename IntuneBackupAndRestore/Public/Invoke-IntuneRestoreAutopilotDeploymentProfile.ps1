@@ -46,7 +46,7 @@ function Invoke-IntuneRestoreAutopilotDeploymentProfile {
 				"Action" = "Restore"
 				"Type"   = "Autopilot Deployment Profile"
 				"Name"   = $winAutopilotDeploymentProfileDisplayName
-				#"Path"   = "Autopilot Deployment Profiles\$($winAutopilotDeploymentProfile.Name)"
+				"Path"   = "Autopilot Deployment Profiles\$($winAutopilotDeploymentProfile.Name)"
 			}
 		}
 		catch {

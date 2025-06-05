@@ -99,7 +99,7 @@ function Invoke-IntuneRestoreAppProtectionPolicyAssignment {
                 "Action" = "Restore"
                 "Type"   = "App Protection Policy Assignments"
                 "Name"   = $appProtectionPolicyName
-                #"Path"   = "App Protection Policies\Assignments\$($appProtectionPolicy.Name)"
+                "Path"   = "App Protection Policies\Assignments\$($appProtectionPolicy.Name)"
             }
         }
         catch {

@@ -29,15 +29,13 @@ function Compare-IntuneBackupFile() {
 
     try {
         $backupFile = Get-Content -LiteralPath $ReferenceFilePath -ErrorAction Stop | ConvertFrom-Json
-    }
-    catch {
+    } catch {
         Write-Error -Message "Could not retrieve ReferenceFile from the ReferenceFilePath location." -ErrorAction Stop
     }
 
     try {
         $latestBackupFile = Get-Content -LiteralPath $DifferenceFilePath -ErrorAction Stop | ConvertFrom-Json
-    }
-    catch {
+    } catch {
         Write-Error -Message "Could not retrieve DifferenceFile from the DifferenceFilePath location." -ErrorAction Stop
     }
     
@@ -56,23 +54,18 @@ function Compare-IntuneBackupFile() {
             if ($null -eq $($_.Value)) {
                 if ($KeyName) {
                     $flatObject | Add-Member -NotePropertyName "$KeyName-$($_.Name)" -NotePropertyValue 'null'
-                }
-                else {
+                } else {
                     $flatObject | Add-Member -NotePropertyName $_.Name -NotePropertyValue 'null'
                 }
-            }
-            else {
+            } else {
                 if (($_.Value).GetType().Name -eq 'PSCustomObject') {
                     Invoke-FlattenBackupObject -PSCustomObject $_.Value -KeyName $_.Name
-                }
-                elseif (($_.Value).GetType().Name -eq 'Object[]') {
+                } elseif (($_.Value).GetType().Name -eq 'Object[]') {
                     Invoke-FlattenBackupObject -PSCustomObject $_.Value.GetEnumerator() -KeyName $_.Name
-                }
-                else {
+                } else {
                     if ($KeyName) {
                         $flatObject | Add-Member -NotePropertyName "$KeyName-$($_.Name)" -NotePropertyValue $_.Value
-                    }
-                    else {
+                    } else {
                         $flatObject | Add-Member -NotePropertyName $_.Name -NotePropertyValue $_.Value
                     }
                 }
@@ -82,31 +75,29 @@ function Compare-IntuneBackupFile() {
     }
 
     $flattenBackupArray = Invoke-FlattenBackupObject -PSCustomObject $backupFile
-    $flattenLatestBackupArray  = Invoke-FlattenBackupObject -PSCustomObject $latestBackupFile
+    $flattenLatestBackupArray = Invoke-FlattenBackupObject -PSCustomObject $latestBackupFile
 
     # Check if the JSON needs flattening, else it's just an object instead of an array.
     if ($flattenBackupArray -is [array]) {    
         $flattenBackupObject = New-Object -TypeName PSObject
-        for ($i=0; $i -le $flattenBackupArray.Length; $i++) {
+        for ($i = 0; $i -lt $flattenBackupArray.Length; $i++) {
             foreach ($property in $flattenBackupArray[$i].PSObject.Properties) {
                 $flattenBackupObject | Add-Member -NotePropertyName $property.Name -NotePropertyValue $property.Value
             }
         }
-    }
-    else {
+    } else {
         $flattenBackupObject = $flattenBackupArray
     }
 
     # Check if the JSON needs flattening, else it's just an object instead of an array.
     if ($flattenLatestBackupArray -is [array]) {
         $flattenLatestBackupObject = New-Object -TypeName PSObject
-        for ($i=0; $i -le $flattenLatestBackupArray.Length; $i++) {
+        for ($i = 0; $i -lt $flattenLatestBackupArray.Length; $i++) {
             foreach ($property in $flattenLatestBackupArray[$i].PSObject.Properties) {
                 $flattenLatestBackupObject | Add-Member -NotePropertyName $property.Name -NotePropertyValue $property.Value -Force
             }
         }
-    }
-    else {
+    } else {
         $flattenLatestBackupObject = $flattenLatestBackupArray
     }
 

@@ -21,10 +21,11 @@ function Get-MGGraphAllPages {
     $uri = $null
     $QueryResults = @()
     do {
-        if ($uri) { $GraphResults = Invoke-MgGraphRequest -Uri "$uri" }
+        if($uri){$GraphResults = Invoke-MgGraphRequest -uri "$uri"}
         if ($GraphResults.value) {
             $QueryResults += $GraphResults.value
-        } else {
+        }
+        else {
             $QueryResults += $GraphResults
         }
         $uri = $GraphResults.'@odata.nextlink'

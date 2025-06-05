@@ -31,9 +31,7 @@
     # Get all assignments from all policies
     $healthScripts = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceHealthScripts" | Get-MGGraphAllPages
 
-	if ($healthScripts.value -ne "") {
-
-        Write-Output "Backup - [Device Health Script Assignments]"
+	if ($healthScripts) {
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Device Health Scripts\Assignments")) {
@@ -41,13 +39,18 @@
 		}
 	
 		foreach ($deviceHealthScript in $deviceHealthScripts) {
-			$assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceHealthScripts/$($deviceHealthScript.id)/assignments" | Get-MGGraphAllPages
+			$assignments = Invoke-MgGraphRequest -Uri "deviceManagement/deviceHealthScripts/$($deviceHealthScript.id)/assignments" | Get-MGGraphAllPages
 			
 			if ($assignments) {
-				$fileName = ($deviceHealthScript.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+				$fileName = ($deviceHealthScript.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 				$assignments | ConvertTo-Json -depth 100 | Out-File -LiteralPath "$path\Device Health Scripts\Assignments\$fileName.json"
 	
-
+				[PSCustomObject]@{
+					"Action" = "Backup"
+					"Type"   = "Device Health Scripts Assignments"
+					"Name"   = $deviceHealthScript.displayName
+					"Path"   = "Device Health Scripts\Assignments\$fileName.json"
+				}
 			}
 		}
 	}

@@ -47,7 +47,7 @@ function Invoke-IntuneRestoreDeviceHealthScript {
 					"Action" = "Restore"
 					"Type"   = "Device Health Script"
 					"Name"   = $deviceHealthScriptDisplayName
-					#"Path"   = "Device Health Scripts\$($deviceHealthScript.Name)"
+					"Path"   = "Device Health Scripts\$($deviceHealthScript.Name)"
 				}
 			}
 			catch {

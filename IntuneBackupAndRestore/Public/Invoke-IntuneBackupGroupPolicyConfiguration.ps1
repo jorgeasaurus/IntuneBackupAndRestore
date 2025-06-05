@@ -1,5 +1,5 @@
 function Invoke-IntuneBackupGroupPolicyConfiguration {
-	<#
+    <#
     .SYNOPSIS
     Backup Intune Group Policy Configurations
     
@@ -13,27 +13,25 @@ function Invoke-IntuneBackupGroupPolicyConfiguration {
     Invoke-IntuneBackupGroupPolicyConfiguration -Path "C:\temp"
     #>
     
-	[CmdletBinding()]
-	param(
-		[Parameter(Mandatory = $true)]
-		[string]$Path,
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
 
-		[Parameter(Mandatory = $false)]
-		[ValidateSet("v1.0", "Beta")]
-		[string]$ApiVersion = "Beta"
-	)
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("v1.0", "Beta")]
+        [string]$ApiVersion = "Beta"
+    )
 
-	#Connect to MS-Graph if required
-	if ($null -eq (Get-MgContext)) {
-		Connect-MgGraph -Scopes "DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
-	}
+    #Connect to MS-Graph if required
+    if ($null -eq (Get-MgContext)) {
+        connect-mggraph -scopes "DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
+    }
     
 	# Get all Group Policy Configurations
-	$groupPolicyConfigurations = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations" | Get-MgGraphAllPages
+    $groupPolicyConfigurations = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations" | Get-MgGraphAllPages
 
-	if ($groupPolicyConfigurations.value -ne "") {
-
-		Write-Output "Backup - [Administrative Templates] - Count [$($groupPolicyConfigurations.count)]"
+	if ($groupPolicyConfigurations) {
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Administrative Templates")) {
@@ -50,7 +48,7 @@ function Invoke-IntuneBackupGroupPolicyConfiguration {
 			
 				$groupPolicyBackupValue = @{
 					"enabled"               = $groupPolicyDefinitionValue.enabled
-					"definition@odata.bind" = "beta/deviceManagement/groupPolicyDefinitions('$($groupPolicyDefinition.id)')"
+					"definition@odata.bind" = "https://graph.microsoft.com/beta/deviceManagement/groupPolicyDefinitions('$($groupPolicyDefinition.id)')"
 				}
 	
 				if ($groupPolicyPresentationValues.value) {
@@ -60,10 +58,11 @@ function Invoke-IntuneBackupGroupPolicyConfiguration {
 						@{
 							"@odata.type"             = $groupPolicyPresentationValue.'@odata.type'
 							"value"                   = $groupPolicyPresentationValue.value
-							"presentation@odata.bind" = "beta/deviceManagement/groupPolicyDefinitions('$($groupPolicyDefinition.id)')/presentations('$($groupPolicyPresentationValue.presentation.id)')"
+							"presentation@odata.bind" = "https://graph.microsoft.com/beta/deviceManagement/groupPolicyDefinitions('$($groupPolicyDefinition.id)')/presentations('$($groupPolicyPresentationValue.presentation.id)')"
 						}
 					}
-				} elseif ($groupPolicyPresentationValues.values) {
+				}
+				elseif ($groupPolicyPresentationValues.values) {
 					$groupPolicyBackupValue."presentationValues" = @(
 						@{
 							"@odata.type"             = $groupPolicyPresentationValues.'@odata.type'
@@ -75,7 +74,7 @@ function Invoke-IntuneBackupGroupPolicyConfiguration {
 									}
 								}
 							)
-							"presentation@odata.bind" = "beta/deviceManagement/groupPolicyDefinitions('$($groupPolicyDefinition.id)')/presentations('$($groupPolicyPresentationValues.presentation.id)')"
+							"presentation@odata.bind" = "https://graph.microsoft.com/beta/deviceManagement/groupPolicyDefinitions('$($groupPolicyDefinition.id)')/presentations('$($groupPolicyPresentationValues.presentation.id)')"
 						}
 					)
 				}
@@ -83,10 +82,15 @@ function Invoke-IntuneBackupGroupPolicyConfiguration {
 				$groupPolicyBackupValues += $groupPolicyBackupValue
 			}
 	
-			$fileName = ($groupPolicyConfiguration.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+			$fileName = ($groupPolicyConfiguration.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 			$groupPolicyBackupValues | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\Administrative Templates\$fileName.json"
 	
-
+			[PSCustomObject]@{
+				"Action" = "Backup"
+				"Type"   = "Administrative Template"
+				"Name"   = $groupPolicyConfiguration.displayName
+				"Path"   = "Administrative Templates\$fileName.json"
+			}
 		}
 	}
 }

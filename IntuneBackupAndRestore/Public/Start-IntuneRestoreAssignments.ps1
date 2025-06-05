@@ -33,7 +33,7 @@ function Start-IntuneRestoreAssignments() {
         "Action" = "Restore"
         "Type"   = "Intune Backup and Restore Action"
         "Name"   = "IntuneBackupAndRestore - Start Intune Restore Assignments"
-        #"Path"   = $Path
+        "Path"   = $Path
     }
 
     #Connect to MS-Graph if required

@@ -26,9 +26,7 @@
     # Get all assignments from all policies
     $winAutopilotDeploymentProfiles = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/windowsAutopilotDeploymentProfiles" | Get-MGGraphAllPages
 
-	if ($winAutopilotDeploymentProfiles.value -ne "") {
-
-        Write-Output "Backup - [Autopilot Deployment Profile Assignments]"
+	if ($winAutopilotDeploymentProfiles) {
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Autopilot Deployment Profiles\Assignments")) {
@@ -39,10 +37,15 @@
 			$assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/windowsAutopilotDeploymentProfiles/$($winAutopilotDeploymentProfile.id)/assignments" | Get-MGGraphAllPages
 			
 			if ($assignments) {
-				$fileName = ($winAutopilotDeploymentProfile.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+				$fileName = ($winAutopilotDeploymentProfile.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 				$assignments | ConvertTo-Json | Out-File -LiteralPath "$path\Autopilot Deployment Profiles\Assignments\$fileName.json"
 	
-
+				[PSCustomObject]@{
+					"Action" = "Backup"
+					"Type"   = "Autopilot Deployment Profile Assignments"
+					"Name"   = $winAutopilotDeploymentProfile.displayName
+					"Path"   = "Autopilot Deployment Profiles\Assignments\$fileName.json"
+				}
 			}
 		}
 	}

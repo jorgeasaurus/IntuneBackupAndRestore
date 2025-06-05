@@ -31,9 +31,7 @@ function Invoke-IntuneBackupDeviceManagementIntent {
     Write-Verbose "Requesting Intents"
     $intents = Get-MgBetaDeviceManagementIntent -all
 
-	if ($intents.value -ne "") {
-
-		Write-Output "Backup - [Device Management Intents] - Count [$($intents.count)]"
+	if ($intents) {
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Device Management Intents")) {
@@ -44,7 +42,7 @@ function Invoke-IntuneBackupDeviceManagementIntent {
 			# Get the corresponding Device Management Template
 			Write-Verbose "Requesting Template"
 			$template = Get-MgBetaDeviceManagementTemplate -DeviceManagementTemplateId $($intent.templateId) 
-			$templateDisplayName = ($template.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+			$templateDisplayName = ($template.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 	
 			if (-not (Test-Path "$Path\Device Management Intents\$templateDisplayName")) {
 				$null = New-Item -Path "$Path\Device Management Intents\$templateDisplayName" -ItemType Directory
@@ -76,10 +74,15 @@ function Invoke-IntuneBackupDeviceManagementIntent {
 				"roleScopeTagIds" = $intent.roleScopeTagIds
 			}
 			
-			$fileName = ("$($template.id)_$($intent.displayName)") -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+			$fileName = ("$($template.id)_$($intent.displayName)").Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 			$intentBackupValue | ConvertTo-Json -depth 10 | Out-File -LiteralPath "$path\Device Management Intents\$templateDisplayName\$fileName.json"
 	
-
+			[PSCustomObject]@{
+				"Action" = "Backup"
+				"Type"   = "Device Management Intent"
+				"Name"   = $intent.displayName
+				"Path"   = "Device Management Intents\$templateDisplayName\$fileName.json"
+			}
 		}
 	}
 }

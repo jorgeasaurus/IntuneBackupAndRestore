@@ -96,7 +96,7 @@ function Invoke-IntuneRestoreClientAppAssignment {
                 "Action" = "Restore"
                 "Type"   = "Client App Assignments"
                 "Name"   = $clientAppObject.displayName
-               #"Path"   = "Client Apps\Assignments\$($clientApp.Name)"
+                "Path"   = "Client Apps\Assignments\$($clientApp.Name)"
             }
         }
         catch {

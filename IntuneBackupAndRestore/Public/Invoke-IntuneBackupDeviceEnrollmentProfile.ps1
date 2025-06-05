@@ -30,7 +30,7 @@ function Invoke-IntuneBackupDeviceEnrollmentProfile {
 
     $DepOnboardingSettings = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/depOnboardingSettings" | Get-MgGraphAllPages
 
-    if ($DepOnboardingSettings.value -ne "") {
+    if ($DepOnboardingSettings) {
     
         $enrollmentProfiles = foreach ($DepOnboardingSetting in $DepOnboardingSettings) {
             Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/depOnboardingSettings/$($DepOnboardingSetting.id)/enrollmentProfiles" | Get-MgGraphAllPages
@@ -39,14 +39,20 @@ function Invoke-IntuneBackupDeviceEnrollmentProfile {
 
     if ($enrollmentProfiles) {
 
-        Write-Output "Backup - [Device Enrollment Profiles] - Count [$($enrollmentProfiles.count)]"
-
         # Create folder if not exists
         if (-not (Test-Path "$Path\Device Enrollment Profiles")) {
             $null = New-Item -Path "$Path\Device Enrollment Profiles" -ItemType Directory
         }
 
         foreach ($profile in $enrollmentProfiles) {
+
+            [PSCustomObject]@{
+                "Action" = "Backup"
+                "Type"   = "Device Enrollment Profile"
+                "Name"   = $profile.displayName
+                "Path"   = "Device Enrollment Profiles\$fileName.json"
+            }
+
             # Filter for iOS-specific profiles (e.g., Device Enrollment Program or Apple Configurator)
             if ($profile.'@odata.type' -like "*ios*") {
                 $fileName = ($profile.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'

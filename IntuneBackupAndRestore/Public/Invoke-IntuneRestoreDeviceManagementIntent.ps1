@@ -65,7 +65,7 @@ function Invoke-IntuneRestoreDeviceManagementIntent {
                 "Action" = "Restore"
                 "Type"   = "Device Management Intent"
                 "Name"   = $deviceManagementIntentDisplayName
-                #"Path"   = "Device Management Intents\$($deviceManagementIntent.Name)"
+                "Path"   = "Device Management Intents\$($deviceManagementIntent.Name)"
             }
         }
         catch {

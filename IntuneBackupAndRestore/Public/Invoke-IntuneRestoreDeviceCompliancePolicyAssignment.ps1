@@ -85,7 +85,7 @@ function Invoke-IntuneRestoreDeviceCompliancePolicyAssignment {
                 "Action" = "Restore"
                 "Type"   = "Device Compliance Policy Assignments"
                 "Name"   = $deviceCompliancePolicyObject.displayName
-                #"Path"   = "Device Compliance Policies\Assignments\$($deviceCompliancePolicy.Name)"
+                "Path"   = "Device Compliance Policies\Assignments\$($deviceCompliancePolicy.Name)"
             }
         }
         catch {

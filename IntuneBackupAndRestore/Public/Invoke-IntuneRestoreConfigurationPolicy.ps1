@@ -44,7 +44,7 @@ function Invoke-IntuneRestoreConfigurationPolicy {
                 "Action" = "Restore"
                 "Type"   = "Settings Catalog"
                 "Name"   = $configurationPolicy.BaseName
-                #"Path"   = "Settings Catalog\$($configurationPolicy.Name)"
+                "Path"   = "Settings Catalog\$($configurationPolicy.Name)"
             }
         }
         catch {

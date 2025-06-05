@@ -24,25 +24,31 @@ function Start-IntuneBackup() {
         [string]$Path
     )
 
+    [PSCustomObject]@{
+        "Action" = "Backup"
+        "Type"   = "Intune Backup and Restore Action"
+        "Name"   = "IntuneBackupAndRestore - Start Intune Backup Config and Assignments"
+        "Path"   = $Path
+    }
+
     #Connect to MS-Graph if required
     if ($null -eq (Get-MgContext)) {
-        Connect-MgGraph -Scopes "EntitlementManagement.ReadWrite.All, DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
-    } else {
-        Write-Host "MG-Graph already connected, checking scopes"
+        connect-mggraph -scopes "EntitlementManagement.ReadWrite.All, DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
+    }else{
+        Write-Host "MS-Graph already connected, checking scopes"
         $scopes = Get-MgContext | Select-Object -ExpandProperty Scopes
         $IncorrectScopes = $false
-        if ($scopes -notcontains "DeviceManagementApps.ReadWrite.All") { $IncorrectScopes = $true }
-        if ($scopes -notcontains "Policy.Read.All") { $IncorrectScopes = $true }
-        if ($scopes -notcontains "DeviceManagementConfiguration.ReadWrite.All") { $IncorrectScopes = $true }
-        if ($scopes -notcontains "DeviceManagementServiceConfig.ReadWrite.All") { $IncorrectScopes = $true }
-        if ($scopes -notcontains "DeviceManagementManagedDevices.ReadWrite.All") { $IncorrectScopes = $true }
+        if ($scopes -notcontains "DeviceManagementApps.ReadWrite.All") {$IncorrectScopes = $true}
+        if ($scopes -notcontains "DeviceManagementConfiguration.ReadWrite.All") {$IncorrectScopes = $true}
+        if ($scopes -notcontains "DeviceManagementServiceConfig.ReadWrite.All") {$IncorrectScopes = $true}
+        if ($scopes -notcontains "DeviceManagementManagedDevices.ReadWrite.All") {$IncorrectScopes = $true}
         if ($IncorrectScopes) {
             Write-Host "Incorrect scopes, please verify you have the correct permissions to backup Intune configuration."
             Exit 1
         } else {
             Write-Host "MG-Graph scopes are correct"
         }
-        Write-Host ""
+		Write-Host ""
     }
 
     Invoke-IntuneBackupAutopilotDeploymentProfile -Path $Path

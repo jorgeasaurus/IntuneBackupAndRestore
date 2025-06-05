@@ -65,7 +65,7 @@ function Invoke-IntuneRestoreDeviceCompliancePolicy {
                 "Action" = "Restore"
                 "Type"   = "Device Compliance Policy"
                 "Name"   = $deviceCompliancePolicyDisplayName
-                #"Path"   = "Device Compliance Policies\$($deviceCompliancePolicy.Name)"
+                "Path"   = "Device Compliance Policies\$($deviceCompliancePolicy.Name)"
             }
         }
         catch {

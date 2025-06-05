@@ -29,15 +29,14 @@
     }
 	
     # Get all Autopilot Deployment Profiles
-    $DeviceAssignmentFilters = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/assignmentFilters" -OutputType PSObject | Select-Object -ExpandProperty Value
+    $DeviceAssignmentFilters = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/assignmentFilters" | Get-MgGraphAllPages
 
-    $global:DeviceFilters = $DeviceAssignmentFilters | Select-Object id, displayName
 
-    if ($DeviceAssignmentFilters.value -ne "") {
-
-  
-        Write-Output "Backup - [Device Assignment Filters] - Count [$($DeviceAssignmentFilters.count)]"
+    if ($DeviceAssignmentFilters) {
         
+        $global:DeviceFilters = $DeviceAssignmentFilters | Select-Object id, displayName
+
+
         # Create folder if not exists
         if (-not (Test-Path "$Path\Device Assignment Filters")) {
             $null = New-Item -Path "$Path\Device Assignment Filters" -ItemType Directory
@@ -45,10 +44,17 @@
 	
         foreach ($DeviceAssignmentFilter in $DeviceAssignmentFilters) {
             $fileName = ($DeviceAssignmentFilter.id) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
-	
+
+            [PSCustomObject]@{
+                "Action" = "Backup"
+                "Type"   = "Device Assignment Filter"
+                "Name"   = $DeviceAssignmentFilter.displayName
+                "Path"   = "Device Assignment Filters\$fileName.json"
+            }
+            
             # Export the Deployment profile
             $DeviceAssignmentFilterObject = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/assignmentFilters/$($DeviceAssignmentFilter.id)"
-            $DeviceAssignmentFilterObject | ConvertTo-Json -Depth 10 | Out-File -LiteralPath "$path\Device Assignment Filters\$fileName.json"
+            $DeviceAssignmentFilterObject | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\Device Assignment Filters\$fileName.json"
 	
         }
     }

@@ -85,7 +85,7 @@ function Invoke-IntuneRestoreConfigurationPolicyAssignment {
                 "Action" = "Restore"
                 "Type"   = "Settings Catalog Assignments"
                 "Name"   = $configurationPolicyObject.name
-                #"Path"   = "Settings Catalog\Assignments\$($configurationPolicy.Name)"
+                "Path"   = "Settings Catalog\Assignments\$($configurationPolicy.Name)"
             }
         }
         catch {

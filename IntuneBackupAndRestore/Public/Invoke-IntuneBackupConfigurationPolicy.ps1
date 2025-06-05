@@ -31,10 +31,7 @@ function Invoke-IntuneBackupConfigurationPolicy {
     # Get all Setting Catalogs Policies
     $configurationPolicies = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies" | Get-MGGraphAllPages
 
-	if ($configurationPolicies.value -ne "") {
-
-        Write-Output "Backup - [Settings Catalog Profiles] - Count [$($configurationPolicies.count)]"
-
+	if ($configurationPolicies) {
 
 	    # Create folder if not exists
 		if (-not (Test-Path "$Path\Settings Catalog")) {
@@ -51,10 +48,15 @@ function Invoke-IntuneBackupConfigurationPolicy {
 				$configurationPolicy.Settings = $settings
 			}
 			
-			$fileName = ($configurationPolicy.name) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+			$fileName = ($configurationPolicy.name).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 			$configurationPolicy | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\Settings Catalog\$fileName.json"
 	
-
+			[PSCustomObject]@{
+				"Action" = "Backup"
+				"Type"   = "Settings Catalog"
+				"Name"   = $configurationPolicy.name
+				"Path"   = "Settings Catalog\$fileName.json"
+			}
 		}
 	}
 }

@@ -31,9 +31,7 @@ function Invoke-IntuneBackupGroupPolicyConfigurationAssignment {
     # Get all assignments from all policies
     $groupPolicyConfigurations = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations" | Get-MgGraphAllPages
 
-	if ($groupPolicyConfigurations.value -ne "") {
-
-        Write-Output "Backup - [Administrative Templates Assignments]"
+	if ($groupPolicyConfigurations) {
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Administrative Templates\Assignments")) {
@@ -44,10 +42,15 @@ function Invoke-IntuneBackupGroupPolicyConfigurationAssignment {
 			$assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations/$($groupPolicyConfiguration.id)/assignments" | Get-MgGraphAllPages
 			
 			if ($assignments) {
-				$fileName = ($groupPolicyConfiguration.displayName) -replace '[^A-Za-z0-9-_ \.\[\]]', '' -replace ' ', '_'
+				$fileName = ($groupPolicyConfiguration.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 				$assignments | ConvertTo-Json | Out-File -LiteralPath "$path\Administrative Templates\Assignments\$fileName.json"
 	
-
+				[PSCustomObject]@{
+					"Action" = "Backup"
+					"Type"   = "Administrative Template Assignments"
+					"Name"   = $groupPolicyConfiguration.displayName
+					"Path"   = "Administrative Templates\Assignments\$fileName.json"
+				}
 			}
 		}
 	}

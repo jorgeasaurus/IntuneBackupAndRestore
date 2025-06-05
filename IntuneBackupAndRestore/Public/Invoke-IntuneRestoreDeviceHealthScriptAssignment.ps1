@@ -82,7 +82,7 @@ function Invoke-IntuneRestoreDeviceHealthScriptAssignment {
                 "Action" = "Restore"
                 "Type"   = "Device Health Script Assignments"
                 "Name"   = $deviceHealthScriptObject.displayName
-                #"Path"   = "Device Health Scripts\Assignments\$($deviceHealthScript.Name)"
+                "Path"   = "Device Health Scripts\Assignments\$($deviceHealthScript.Name)"
             }
         }
         catch {

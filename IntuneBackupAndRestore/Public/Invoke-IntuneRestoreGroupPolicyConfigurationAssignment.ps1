@@ -91,7 +91,7 @@ function Invoke-IntuneRestoreGroupPolicyConfigurationAssignment {
                 "Action" = "Restore"
                 "Type"   = "Administrative Template Assignments"
                 "Name"   = $groupPolicyConfigurationObject.displayName
-                #"Path"   = "Administrative Templates\Assignments\$groupPolicyConfigurationName"
+                "Path"   = "Administrative Templates\Assignments\$groupPolicyConfigurationName"
             }
         }
         catch {

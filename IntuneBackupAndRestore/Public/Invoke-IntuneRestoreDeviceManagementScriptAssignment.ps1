@@ -87,7 +87,7 @@ function Invoke-IntuneRestoreDeviceManagementScriptAssignment {
                 "Action" = "Restore"
                 "Type"   = "Device Management Script Assignments"
                 "Name"   = $deviceManagementScriptObject.displayName
-                #"Path"   = "Device Management Scripts\Assignments\$($deviceManagementScript.Name)"
+                "Path"   = "Device Management Scripts\Assignments\$($deviceManagementScript.Name)"
             }
         }
         catch {

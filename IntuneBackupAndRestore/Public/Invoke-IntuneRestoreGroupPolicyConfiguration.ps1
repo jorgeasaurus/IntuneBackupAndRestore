@@ -45,7 +45,7 @@ function Invoke-IntuneRestoreGroupPolicyConfiguration {
                 "Action" = "Restore"
                 "Type"   = "Administrative Template"
                 "Name"   = $groupPolicyConfigurationObject.displayName
-                #"Path"   = "Administrative Templates\$($groupPolicyConfiguration.Name)"
+                "Path"   = "Administrative Templates\$($groupPolicyConfiguration.Name)"
             }
 
             foreach ($groupPolicyConfigurationSetting in $groupPolicyConfigurationContent) {
@@ -55,7 +55,7 @@ function Invoke-IntuneRestoreGroupPolicyConfiguration {
                     "Action" = "Restore"
                     "Type"   = "Administrative Template Setting"
                     "Name"   = $groupPolicyDefinition.displayName
-                   #"Path"   =  "Administrative Templates\$($groupPolicyConfiguration.Name)"
+                    "Path"   = "Administrative Templates\$($groupPolicyConfiguration.Name)"
                 }
             }
         }

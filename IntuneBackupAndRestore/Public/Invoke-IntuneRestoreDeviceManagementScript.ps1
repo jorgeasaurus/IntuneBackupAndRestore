@@ -49,7 +49,7 @@ function Invoke-IntuneRestoreDeviceManagementScript {
                 "Action" = "Restore"
                 "Type"   = "Device Management Script"
                 "Name"   = $deviceManagementScriptDisplayName
-                #"Path"   = "Device Management Scripts\$($deviceManagementScript.Name)"
+                "Path"   = "Device Management Scripts\$($deviceManagementScript.Name)"
             }
         }
         catch {
