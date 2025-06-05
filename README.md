@@ -3,10 +3,12 @@
 ![PowerShell Gallery](https://img.shields.io/powershellgallery/v/IntuneBackupAndRestore.svg?label=PSGallery%20Version&logo=PowerShell&style=flat-square)
 ![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/IntuneBackupAndRestore.svg?label=PSGallery%20Downloads&logo=PowerShell&style=flat-square)
 
-
 This PowerShell Module queries Microsoft Graph, and allows for cross-tenant Backup & Restore actions of your Intune Configuration.
 
 Intune Configuration is backed up as (json) files in a given directory.
+
+## Credits
+Thanks https://github.com/mhu4711 for updating this PowerShell module to the Microsoft.Graph PowerShell module.
 
 ## Installing IntuneBackupAndRestore
 
@@ -23,10 +25,7 @@ Update-Module -Name IntuneBackupAndRestore
 ```
 
 ## Prerequisites
-As of version 2.0.0, the IntuneBackupAndRestore PowerShell Module has migrated from the MSGraphFunctions PowerShell module to the Microsoft.Graph.Intune PowerShell module. Please make sure you meet the prerequisites below.
-
-- Requires [Microsoft.Graph.Intune](https://github.com/Microsoft/Intune-PowerShell-SDK/) PowerShell Module (`Install-Module -Name Microsoft.Graph.Intune`)
-- Connect to Microsoft Graph using the `Connect-MSGraph` PSCmdlet first.
+- Requires [Microsoft.Graph](https://github.com/microsoftgraph/msgraph-sdk-powershell) PowerShell Module (`Install-Module -Name Microsoft.Graph`, `Install-Module Microsoft.Graph.Beta -AllowClobber`)
 - Make sure to import the IntuneBackupAndRestore PowerShell module before using it with the `Import-Module IntuneBackupAndRestore` cmdlet.
 
 ## Features
@@ -36,6 +35,8 @@ As of version 2.0.0, the IntuneBackupAndRestore PowerShell Module has migrated f
 - Administrative Template Assignments
 - App Protection Policies
 - App Protection Policy Assignments
+- Autopilot Deployment Profiles
+- Autopilot Deployment Profile Assignments
 - Client Apps
 - Client App Assignments
 - Device Compliance Policies
@@ -68,6 +69,8 @@ As of version 2.0.0, the IntuneBackupAndRestore PowerShell Module has migrated f
 - Administrative Template Assignments
 - App Protection Policies
 - App Protection Policy Assignments
+- Autopilot Deployment Profiles
+- Autopilot Deployment Profile Assignments
 - Client App Assignments
 - Device Compliance Policies
 - Device Compliance Policy Assignments
@@ -75,6 +78,8 @@ As of version 2.0.0, the IntuneBackupAndRestore PowerShell Module has migrated f
 - Device Configuration Assignments
 - Device Management Scripts (Device Configuration -> PowerShell Scripts)
 - Device Management Script Assignments
+- Proactive Remediations
+- Proactive Remediation Assignments
 - Settings Catalog Policies
 - Settings Catalog Policy Assignments
 - Software Update Rings
