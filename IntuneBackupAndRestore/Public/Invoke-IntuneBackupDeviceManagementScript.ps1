@@ -31,7 +31,7 @@ function Invoke-IntuneBackupDeviceManagementScript {
     # Get all device management scripts
     $deviceManagementScripts = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceManagementScripts" | Get-MgGraphAllPages
 	
-	if ($deviceManagementScripts.value -ne "") {
+	if ($deviceManagementScripts) {
 		
 	    # Create folder if not exists
 		if (-not (Test-Path "$Path\Device Management Scripts\Script Content")) {

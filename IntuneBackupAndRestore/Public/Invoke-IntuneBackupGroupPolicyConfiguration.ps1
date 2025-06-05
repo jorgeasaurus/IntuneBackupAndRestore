@@ -31,7 +31,7 @@ function Invoke-IntuneBackupGroupPolicyConfiguration {
 	# Get all Group Policy Configurations
     $groupPolicyConfigurations = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations" | Get-MgGraphAllPages
 
-	if ($groupPolicyConfigurations.value -ne "") {
+	if ($groupPolicyConfigurations) {
 
 		# Create folder if not exists
 		if (-not (Test-Path "$Path\Administrative Templates")) {
