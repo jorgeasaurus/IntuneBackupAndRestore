@@ -29,7 +29,7 @@ function Invoke-IntuneBackupConfigurationPolicyAssignment {
     }
 
     # Get all assignments from all policies
-    $configurationPolicies = (Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies").value
+    $configurationPolicies = (Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/configurationPolicies").value
 
 	if ($configurationPolicies) {
 
@@ -39,7 +39,7 @@ function Invoke-IntuneBackupConfigurationPolicyAssignment {
 		}
 	
 		foreach ($configurationPolicy in $configurationPolicies) {
-			$assignments = (Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies/$($configurationPolicy.id)/assignments").value
+			$assignments = (Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/configurationPolicies/$($configurationPolicy.id)/assignments").value
 			if ($assignments) {
 				$fileName = ($configurationPolicy.name).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 				$assignments | ConvertTo-Json | Out-File -LiteralPath "$path\Settings Catalog\Assignments\$fileName.json"

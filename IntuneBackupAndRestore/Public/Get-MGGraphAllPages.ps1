@@ -10,7 +10,7 @@ function Get-MGGraphAllPages {
     Microsoft Graph Query Results
     
     .EXAMPLE
-    Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/beta/deviceManagement/deviceConfigurations" | Get-MGGraphAllPages
+    Invoke-MgGraphRequest -OutputType PSObject -Uri "https://graph.microsoft.com/beta/deviceManagement/deviceConfigurations" | Get-MGGraphAllPages
     
     #>
     
@@ -21,7 +21,7 @@ function Get-MGGraphAllPages {
     $uri = $null
     $QueryResults = @()
     do {
-        if($uri){$GraphResults = Invoke-MgGraphRequest -uri "$uri"}
+        if($uri){$GraphResults = Invoke-MgGraphRequest -OutputType PSObject -Uri "$uri"}
         if ($GraphResults.value) {
             $QueryResults += $GraphResults.value
         }

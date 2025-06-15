@@ -59,10 +59,10 @@ function Invoke-IntuneRestoreAutopilotDeploymentProfileAssignment {
         # Get the Autopilot Deployment Profile we are restoring the assignments for
         try {
             if ($restoreById) {
-                $winAutopilotDeploymentProfileObject = Invoke-MgGraphRequest -Uri "deviceManagement/windowsAutopilotDeploymentProfiles/$winAutopilotDeploymentProfileId"
+                $winAutopilotDeploymentProfileObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "deviceManagement/windowsAutopilotDeploymentProfiles/$winAutopilotDeploymentProfileId"
             }
             else {
-                $winAutopilotDeploymentProfileObject = Invoke-MgGraphRequest -Uri "deviceManagement/windowsAutopilotDeploymentProfiles" | Get-MGGraphAllPages | Where-Object displayName -eq "$($winAutopilotDeploymentProfile.BaseName)"
+                $winAutopilotDeploymentProfileObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "deviceManagement/windowsAutopilotDeploymentProfiles" | Get-MGGraphAllPages | Where-Object displayName -eq "$($winAutopilotDeploymentProfile.BaseName)"
                 if (-not ($winAutopilotDeploymentProfileObject)) {
                     Write-Verbose "Error retrieving Intune Autopilot Deployment Profile for $($winAutopilotDeploymentProfile.FullName). Skipping assignment restore" -Verbose
                     continue

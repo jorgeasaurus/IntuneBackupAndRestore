@@ -29,7 +29,7 @@ function Invoke-IntuneBackupConditionalAccessPolicy {
     }
 
     # Get all Client Apps
-    $ConditionalAccessPolicies = Invoke-MgGraphRequest -Uri "$ApiVersion/identity/conditionalAccess/policies" | Get-MgGraphAllPages
+    $ConditionalAccessPolicies = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/identity/conditionalAccess/policies" | Get-MgGraphAllPages
 
     if ($ConditionalAccessPolicies) {
 

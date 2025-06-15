@@ -29,7 +29,7 @@
     }
 
     # Get all assignments from all policies
-    $healthScripts = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceHealthScripts" | Get-MGGraphAllPages
+    $healthScripts = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceHealthScripts" | Get-MGGraphAllPages
 
 	if ($healthScripts) {
 
@@ -39,7 +39,7 @@
 		}
 	
 		foreach ($deviceHealthScript in $deviceHealthScripts) {
-			$assignments = Invoke-MgGraphRequest -Uri "deviceManagement/deviceHealthScripts/$($deviceHealthScript.id)/assignments" | Get-MGGraphAllPages
+			$assignments = Invoke-MgGraphRequest -OutputType PSObject -Uri "deviceManagement/deviceHealthScripts/$($deviceHealthScript.id)/assignments" | Get-MGGraphAllPages
 			
 			if ($assignments) {
 				$fileName = ($deviceHealthScript.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'

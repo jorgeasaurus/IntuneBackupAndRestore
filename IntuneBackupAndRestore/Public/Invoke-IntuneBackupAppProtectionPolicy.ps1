@@ -29,7 +29,7 @@ function Invoke-IntuneBackupAppProtectionPolicy {
     }
 
     # Get all App Protection Policies
-    $appProtectionPolicies = Invoke-MgGraphRequest -Uri "/$ApiVersion/deviceAppManagement/managedAppPolicies" | Get-MgGraphAllPages
+    $appProtectionPolicies = Invoke-MgGraphRequest -OutputType PSObject -Uri "/$ApiVersion/deviceAppManagement/managedAppPolicies" | Get-MgGraphAllPages
 
 	if ($appProtectionPolicies) {
 

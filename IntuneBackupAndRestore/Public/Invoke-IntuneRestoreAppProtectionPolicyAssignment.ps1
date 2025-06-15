@@ -60,10 +60,10 @@ function Invoke-IntuneRestoreAppProtectionPolicyAssignment {
         # Get the App Protection Policy we are restoring the assignments for
         try {
             if ($restoreById) {
-                $appProtectionPolicyObject = Invoke-MgGraphRequest -Uri "/$ApiVersion/deviceAppManagement/managedAppPolicies/$appProtectionPolicyId" 
+                $appProtectionPolicyObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "/$ApiVersion/deviceAppManagement/managedAppPolicies/$appProtectionPolicyId" 
             }
             else {
-                $appProtectionPolicyObject = Invoke-MgGraphRequest -Uri "/$ApiVersion/deviceAppManagement/managedAppPolicies/" | Get-MGGraphAllPages | Where-Object { $_.displayName -eq $appProtectionPolicyName }
+                $appProtectionPolicyObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "/$ApiVersion/deviceAppManagement/managedAppPolicies/" | Get-MGGraphAllPages | Where-Object { $_.displayName -eq $appProtectionPolicyName }
                 if (-not ($appProtectionPolicyObject)) {
                     Write-Warning "Error retrieving App Protection Policy for $appProtectionPolicyName. Skipping assignment restore"
                     continue

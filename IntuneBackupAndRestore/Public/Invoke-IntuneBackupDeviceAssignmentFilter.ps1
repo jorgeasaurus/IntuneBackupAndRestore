@@ -29,7 +29,7 @@
     }
 	
     # Get all Autopilot Deployment Profiles
-    $DeviceAssignmentFilters = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/assignmentFilters" | Get-MgGraphAllPages
+    $DeviceAssignmentFilters = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/assignmentFilters" | Get-MgGraphAllPages
 
 
     if ($DeviceAssignmentFilters) {
@@ -53,7 +53,7 @@
             }
             
             # Export the Deployment profile
-            $DeviceAssignmentFilterObject = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/assignmentFilters/$($DeviceAssignmentFilter.id)"
+            $DeviceAssignmentFilterObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/assignmentFilters/$($DeviceAssignmentFilter.id)"
             $DeviceAssignmentFilterObject | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\Device Assignment Filters\$fileName.json"
 	
         }

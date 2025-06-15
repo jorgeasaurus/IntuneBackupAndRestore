@@ -62,10 +62,10 @@ function Invoke-IntuneRestoreDeviceConfigurationAssignment {
         # Get the Device Configuration we are restoring the assignments for
         try {
             if ($restoreById) {
-                $deviceConfigurationObject = Invoke-MgGraphRequest -Uri "$apiVersion/deviceManagement/deviceConfigurations/$($deviceConfigurationAssignment.sourceid)" | Get-MGGraphAllPages
+                $deviceConfigurationObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "$apiVersion/deviceManagement/deviceConfigurations/$($deviceConfigurationAssignment.sourceid)" | Get-MGGraphAllPages
             }   
             else {
-                $deviceConfigurationObject = Invoke-MgGraphRequest -Uri "$apiVersion/deviceManagement/deviceConfigurations" | Get-MGGraphAllPages | Where-Object displayName -eq $deviceConfigurationName
+                $deviceConfigurationObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "$apiVersion/deviceManagement/deviceConfigurations" | Get-MGGraphAllPages | Where-Object displayName -eq $deviceConfigurationName
                 if (-not ($deviceConfigurationObject)) {
                     Write-Verbose "Error retrieving Intune Device Configuration for $($deviceConfiguration.FullName). Skipping assignment restore" -Verbose
                     continue

@@ -29,7 +29,7 @@ function Invoke-IntuneBackupGroupPolicyConfigurationAssignment {
     }
     
     # Get all assignments from all policies
-    $groupPolicyConfigurations = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations" | Get-MgGraphAllPages
+    $groupPolicyConfigurations = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations" | Get-MgGraphAllPages
 
 	if ($groupPolicyConfigurations) {
 
@@ -39,7 +39,7 @@ function Invoke-IntuneBackupGroupPolicyConfigurationAssignment {
 		}
 	
 		foreach ($groupPolicyConfiguration in $groupPolicyConfigurations) {
-			$assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations/$($groupPolicyConfiguration.id)/assignments" | Get-MgGraphAllPages
+			$assignments = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations/$($groupPolicyConfiguration.id)/assignments" | Get-MgGraphAllPages
 			
 			if ($assignments) {
 				$fileName = ($groupPolicyConfiguration.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'

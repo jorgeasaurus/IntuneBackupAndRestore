@@ -24,7 +24,7 @@
     )
 
     # Get all assignments from all policies
-    $winAutopilotDeploymentProfiles = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/windowsAutopilotDeploymentProfiles" | Get-MGGraphAllPages
+    $winAutopilotDeploymentProfiles = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/windowsAutopilotDeploymentProfiles" | Get-MGGraphAllPages
 
 	if ($winAutopilotDeploymentProfiles) {
 
@@ -34,7 +34,7 @@
 		}
 	
 		foreach ($winAutopilotDeploymentProfile in $winAutopilotDeploymentProfiles) {
-			$assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/windowsAutopilotDeploymentProfiles/$($winAutopilotDeploymentProfile.id)/assignments" | Get-MGGraphAllPages
+			$assignments = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/windowsAutopilotDeploymentProfiles/$($winAutopilotDeploymentProfile.id)/assignments" | Get-MGGraphAllPages
 			
 			if ($assignments) {
 				$fileName = ($winAutopilotDeploymentProfile.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'

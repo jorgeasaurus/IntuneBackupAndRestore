@@ -28,12 +28,12 @@ function Invoke-IntuneBackupDeviceEnrollmentProfile {
         Connect-MgGraph -Scopes "DeviceManagementServiceConfig.Read.All, DeviceManagementConfiguration.Read.All"
     }
 
-    $DepOnboardingSettings = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/depOnboardingSettings" | Get-MgGraphAllPages
+    $DepOnboardingSettings = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/depOnboardingSettings" | Get-MgGraphAllPages
 
     if ($DepOnboardingSettings) {
     
         $enrollmentProfiles = foreach ($DepOnboardingSetting in $DepOnboardingSettings) {
-            Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/depOnboardingSettings/$($DepOnboardingSetting.id)/enrollmentProfiles" | Get-MgGraphAllPages
+            Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/depOnboardingSettings/$($DepOnboardingSetting.id)/enrollmentProfiles" | Get-MgGraphAllPages
         }
     }
 

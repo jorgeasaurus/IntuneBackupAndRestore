@@ -29,7 +29,7 @@ function Invoke-IntuneRestoreDeviceEnrollmentProfile {
 
     # Get all App Protection Policies
     $enrollmentProfiles = Get-ChildItem -Path "$Path\Device Enrollment Profiles" -File -ErrorAction SilentlyContinue
-    $DepOnboardingSettings = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/depOnboardingSettings" | Get-MgGraphAllPages
+    $DepOnboardingSettings = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/depOnboardingSettings" | Get-MgGraphAllPages
     
     foreach ($enrollmentProfile in $enrollmentProfiles) {
         $enrollmentProfileContent = Get-Content -LiteralPath $enrollmentProfile.FullName | ConvertFrom-Json

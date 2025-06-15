@@ -62,10 +62,10 @@ function Invoke-IntuneRestoreDeviceCompliancePolicyAssignment {
         # Get the Device Compliance Policy we are restoring the assignments for
         try {
             if ($restoreById) {
-                $deviceCompliancePolicyObject = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies/$deviceCompliancePolicyId" | Get-MGGraphAllPages
+                $deviceCompliancePolicyObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies/$deviceCompliancePolicyId" | Get-MGGraphAllPages
             }
             else {
-                $deviceCompliancePolicyObject = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies" | Get-MGGraphAllPages | Where-Object displayName -eq $deviceCompliancePolicyName
+                $deviceCompliancePolicyObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies" | Get-MGGraphAllPages | Where-Object displayName -eq $deviceCompliancePolicyName
                 if (-not ($deviceCompliancePolicyObject)) {
                     Write-Verbose "Error retrieving Intune Compliance Policy for $($deviceCompliancePolicy.FullName). Skipping assignment restore" -Verbose
                     continue

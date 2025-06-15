@@ -59,10 +59,10 @@ function Invoke-IntuneRestoreDeviceHealthScriptAssignment {
         # Get the Device Health Script we are restoring the assignments for
         try {
             if ($restoreById) {
-                $deviceHealthScriptObject = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceHealthScripts/$deviceHealthScriptId"
+                $deviceHealthScriptObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceHealthScripts/$deviceHealthScriptId"
             }
             else {
-                $deviceHealthScriptObject = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceHealthScripts" | Get-MGGraphAllPages | Where-Object displayName -eq "$($deviceHealthScript.BaseName)"
+                $deviceHealthScriptObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceHealthScripts" | Get-MGGraphAllPages | Where-Object displayName -eq "$($deviceHealthScript.BaseName)"
                 if (-not ($deviceHealthScriptObject)) {
                     Write-Verbose "Error retrieving Intune Device Health Script for $($deviceHealthScript.FullName). Skipping assignment restore" -Verbose
                     continue

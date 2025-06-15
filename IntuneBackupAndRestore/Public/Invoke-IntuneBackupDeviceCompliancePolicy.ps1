@@ -29,7 +29,7 @@ function Invoke-IntuneBackupDeviceCompliancePolicy {
     }
 
     # Get all Device Compliance Policies
-    $deviceCompliancePolicies = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies" | Get-MGGraphAllPages
+    $deviceCompliancePolicies = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies" | Get-MGGraphAllPages
 
 	if ($deviceCompliancePolicies) {
 

@@ -29,7 +29,7 @@ function Invoke-IntuneBackupDeviceConfiguration {
     }
 
     # Get all device configurations
-    $deviceConfigurations = Invoke-MgGraphRequest -Uri "$apiVersion/deviceManagement/deviceConfigurations" | Get-MGGraphAllPages
+    $deviceConfigurations = Invoke-MgGraphRequest -OutputType PSObject -Uri "$apiVersion/deviceManagement/deviceConfigurations" | Get-MGGraphAllPages
 
 	if ($deviceConfigurations) {
 
@@ -48,7 +48,7 @@ function Invoke-IntuneBackupDeviceConfiguration {
 				foreach ($omaSetting in $deviceConfiguration.omaSettings) {
 					# Check if this particular setting is encrypted, and get the plaintext only if necessary
 					if ($omaSetting.isEncrypted) {
-						$omaSettingValue = Invoke-MgGraphRequest -Uri "$apiVersion/deviceManagement/deviceConfigurations/$($deviceConfiguration.id)/getOmaSettingPlainTextValue(secretReferenceValueId='$($omaSetting.secretReferenceValueId)')" | Get-MgGraphAllPages
+						$omaSettingValue = Invoke-MgGraphRequest -OutputType PSObject -Uri "$apiVersion/deviceManagement/deviceConfigurations/$($deviceConfiguration.id)/getOmaSettingPlainTextValue(secretReferenceValueId='$($omaSetting.secretReferenceValueId)')" | Get-MgGraphAllPages
 					} else {
 						$omaSettingValue = $omaSetting.value
 					}

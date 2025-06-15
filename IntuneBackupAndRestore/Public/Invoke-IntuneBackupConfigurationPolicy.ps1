@@ -29,7 +29,7 @@ function Invoke-IntuneBackupConfigurationPolicy {
     }
 
     # Get all Setting Catalogs Policies
-    $configurationPolicies = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies" | Get-MGGraphAllPages
+    $configurationPolicies = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/configurationPolicies" | Get-MGGraphAllPages
 
 	if ($configurationPolicies) {
 
@@ -40,7 +40,7 @@ function Invoke-IntuneBackupConfigurationPolicy {
 
 		foreach ($configurationPolicy in $configurationPolicies) {
 			$configurationPolicy | Add-Member -MemberType NoteProperty -Name 'settings' -Value @() -Force
-			$settings = (Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/configurationPolicies/$($configurationPolicy.id)/settings").value
+			$settings = (Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/configurationPolicies/$($configurationPolicy.id)/settings").value
 	
 			if ($settings -isnot [System.Array]) {
 				$configurationPolicy.Settings = @($settings)

@@ -28,7 +28,7 @@
     }
 
 	# Get all Intune Health Scripts
-    $healthScripts = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceHealthScripts" | Get-MGGraphAllPages
+    $healthScripts = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceHealthScripts" | Get-MGGraphAllPages
 
 	if ($healthScripts) {
 
@@ -42,7 +42,7 @@
 	
 			# Export the Health script profile (excluding Microsoft builtin scripts)
 			if (-not ($healthScript.publisher -eq "Microsoft")) {
-				$healthScriptObject = Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/$ApiVersion/deviceManagement/deviceHealthScripts/$($healthScript.id)"
+				$healthScriptObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "https://graph.microsoft.com/$ApiVersion/deviceManagement/deviceHealthScripts/$($healthScript.id)"
 				$healthScriptObject | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\Device Health Scripts\$fileName.json"
 	
 				# Create folder if not exists
@@ -50,7 +50,7 @@
 					$null = New-Item -Path "$Path\Device Health Scripts\Script Content" -ItemType Directory
 				}
 	
-				$healthScriptObject = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceHealthScripts/$($healthScript.id)"
+				$healthScriptObject = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceHealthScripts/$($healthScript.id)"
 				$healthScriptDetectionContent = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($healthScriptObject.detectionScriptContent))
 				$healthScriptDetectionContent | Out-File -LiteralPath "$path\Device Health Scripts\Script Content\$fileName`_detection.ps1"
 				$healthScriptRemediationContent = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($healthScriptObject.remediationScriptContent))

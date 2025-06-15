@@ -29,7 +29,7 @@ function Invoke-IntuneBackupDeviceCompliancePolicyAssignment {
     }
 
     # Get all Device Compliance Policies
-    $deviceCompliancePolicies = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies" | Get-MGGraphAllPages
+    $deviceCompliancePolicies = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies" | Get-MGGraphAllPages
 
 	if ($deviceCompliancePolicies) {
 
@@ -39,7 +39,7 @@ function Invoke-IntuneBackupDeviceCompliancePolicyAssignment {
 		}
 	
 		foreach ($deviceCompliancePolicy in $deviceCompliancePolicies) {
-		$assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies/$($deviceCompliancePolicy.id)/assignments" | Get-MGGraphAllPages
+		$assignments = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceCompliancePolicies/$($deviceCompliancePolicy.id)/assignments" | Get-MGGraphAllPages
 			if ($assignments) {
 				$fileName = ($deviceCompliancePolicy.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 				$assignments | ConvertTo-Json | Out-File -LiteralPath "$path\Device Compliance Policies\Assignments\$fileName.json"

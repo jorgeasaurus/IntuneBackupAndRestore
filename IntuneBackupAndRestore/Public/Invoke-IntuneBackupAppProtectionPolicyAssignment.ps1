@@ -28,7 +28,7 @@ function Invoke-IntuneBackupAppProtectionPolicyAssignment {
         connect-mggraph -scopes "DeviceManagementApps.ReadWrite.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementServiceConfig.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All" 
     }
 
-    $appProtectionPolicies = Invoke-MgGraphRequest -Uri "/$ApiVersion/deviceAppManagement/managedAppPolicies" | Get-MgGraphAllPages
+    $appProtectionPolicies = Invoke-MgGraphRequest -OutputType PSObject -Uri "/$ApiVersion/deviceAppManagement/managedAppPolicies" | Get-MgGraphAllPages
 
 	if ($appProtectionPolicies) {
 
@@ -63,7 +63,7 @@ function Invoke-IntuneBackupAppProtectionPolicyAssignment {
 					continue
 				}
 			}
-			$assignments = Invoke-MgGraphRequest -Uri "deviceAppManagement/$dataType('$($appProtectionPolicy.id)')/assignments" | Get-MGGraphAllPages # Added Get-MGGraphAllPages
+			$assignments = Invoke-MgGraphRequest -OutputType PSObject -Uri "deviceAppManagement/$dataType('$($appProtectionPolicy.id)')/assignments" | Get-MGGraphAllPages # Added Get-MGGraphAllPages
 	
 			$fileName = ($appProtectionPolicy.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 			$assignments | ConvertTo-Json -Depth 100 | Out-File -LiteralPath "$path\App Protection Policies\Assignments\$($appProtectionPolicy.id) - $fileName.json"

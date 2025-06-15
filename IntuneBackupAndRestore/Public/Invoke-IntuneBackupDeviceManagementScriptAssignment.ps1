@@ -29,7 +29,7 @@ function Invoke-IntuneBackupDeviceManagementScriptAssignment {
     }
 
     # Get all assignments from all policies
-    $deviceManagementScripts = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceManagementScripts" | Get-MgGraphAllPages
+    $deviceManagementScripts = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceManagementScripts" | Get-MgGraphAllPages
 
 	if ($deviceManagementScripts) {
 
@@ -39,7 +39,7 @@ function Invoke-IntuneBackupDeviceManagementScriptAssignment {
 		}
 
 		foreach ($deviceManagementScript in $deviceManagementScripts) {
-			$assignments = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/deviceManagementScripts/$($deviceManagementScript.id)/assignments" | Get-MgGraphAllPages
+			$assignments = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/deviceManagementScripts/$($deviceManagementScript.id)/assignments" | Get-MgGraphAllPages
 	
 			if ($assignments) {
 				$fileName = ($deviceManagementScript.displayName).Split([IO.Path]::GetInvalidFileNameChars()) -join '_'

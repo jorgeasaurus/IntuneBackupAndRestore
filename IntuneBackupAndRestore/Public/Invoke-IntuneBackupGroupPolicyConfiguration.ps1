@@ -29,7 +29,7 @@ function Invoke-IntuneBackupGroupPolicyConfiguration {
     }
     
 	# Get all Group Policy Configurations
-    $groupPolicyConfigurations = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations" | Get-MgGraphAllPages
+    $groupPolicyConfigurations = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations" | Get-MgGraphAllPages
 
 	if ($groupPolicyConfigurations) {
 
@@ -39,12 +39,12 @@ function Invoke-IntuneBackupGroupPolicyConfiguration {
 		}
 	
 		foreach ($groupPolicyConfiguration in $groupPolicyConfigurations) {
-			$groupPolicyDefinitionValues = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations/$($groupPolicyConfiguration.id)/definitionValues" | Get-MgGraphAllPages
+			$groupPolicyDefinitionValues = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations/$($groupPolicyConfiguration.id)/definitionValues" | Get-MgGraphAllPages
 			$groupPolicyBackupValues = @()
 	
 			foreach ($groupPolicyDefinitionValue in $groupPolicyDefinitionValues) {
-				$groupPolicyDefinition = Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations/$($groupPolicyConfiguration.id)/definitionValues/$($groupPolicyDefinitionValue.id)/definition"
-				$groupPolicyPresentationValues = (Invoke-MgGraphRequest -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations/$($groupPolicyConfiguration.id)/definitionValues/$($groupPolicyDefinitionValue.id)/presentationValues?`$expand=presentation" -OutputType PSObject).Value | Select-Object -Property * -ExcludeProperty lastModifiedDateTime, createdDateTime
+				$groupPolicyDefinition = Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations/$($groupPolicyConfiguration.id)/definitionValues/$($groupPolicyDefinitionValue.id)/definition"
+				$groupPolicyPresentationValues = (Invoke-MgGraphRequest -OutputType PSObject -Uri "$ApiVersion/deviceManagement/groupPolicyConfigurations/$($groupPolicyConfiguration.id)/definitionValues/$($groupPolicyDefinitionValue.id)/presentationValues?`$expand=presentation" -OutputType PSObject).Value | Select-Object -Property * -ExcludeProperty lastModifiedDateTime, createdDateTime
 			
 				$groupPolicyBackupValue = @{
 					"enabled"               = $groupPolicyDefinitionValue.enabled
